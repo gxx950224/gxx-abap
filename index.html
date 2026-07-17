@@ -415,6 +415,14 @@ a:hover { color: var(--blue-light); }
   .mobile-menu-btn { display: block; }
   .docs-content { padding: 24px 20px 60px; }
 }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 998;
+}
+.docs-sidebar.open ~ .sidebar-overlay { display: block; }
 @media (max-width: 600px) {
   .install-box { flex-direction: column; align-items: stretch; gap: 12px; }
   .install-box .cmd-text { white-space: normal; }
@@ -502,6 +510,9 @@ a:hover { color: var(--blue-light); }
         <div class="sidebar-link" data-target="skill-gxx-abap" onclick="showDocs('skill-gxx-abap')">gxx-abap</div>
       </div>
     </aside>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
     <!-- Content -->
     <main class="docs-content" id="docs-content">
@@ -1526,12 +1537,32 @@ function toggleSection(titleEl) {
 }
 
 function toggleSidebar() {
-  document.getElementById('docs-layout').classList.toggle('collapsed');
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sidebar = document.getElementById('sidebar');
+  const layout = document.getElementById('docs-layout');
+  if (window.innerWidth <= 900) {
+    sidebar.classList.toggle('open');
+  } else {
+    sidebar.classList.toggle('collapsed');
+    layout.classList.toggle('collapsed');
+  }
 }
 
-// ===== Mobile sidebar toggle =====
-// Add mobile menu button dynamically
+// Close mobile sidebar when clicking a nav link or outside
+function closeMobileSidebar() {
+  if (window.innerWidth <= 900) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+// Attach close handler to all sidebar links
+function attachSidebarLinkHandlers() {
+  document.querySelectorAll('.sidebar-link').forEach(function(link) {
+    link.addEventListener('click', closeMobileSidebar);
+  });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', attachSidebarLinkHandlers);
 </script>
 
 </body>
