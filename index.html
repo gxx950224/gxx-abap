@@ -431,24 +431,131 @@ a:hover { color: var(--blue-light); }
 
 /* Scroll active tracking */
 .cmd-anchor { scroll-margin-top: 80px; }
+
+/* ============================================================
+   白底 · 全息流光主题（Hologram Light）
+============================================================ */
+@property --holo-angle { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+:root {
+  --blue: #7c3aed;
+  --blue-light: #8b5cf6;
+  --blue-dim: #6d28d9;
+  --blue-glow: rgba(124,58,237,.08);
+  --bg-primary: #ffffff;
+  --bg-secondary: #faf9fc;
+  --bg-card: #ffffff;
+  --bg-code: #faf8fe;
+  --bg-hover: #f4f1fb;
+  --border: #ede9f6;
+  --border-light: #f1edf9;
+  --text-primary: #1b1b2a;
+  --text-secondary: #54546a;
+  --text-dim: #8585a0;
+  --holo-grad: linear-gradient(90deg,#ff0080,#ff8c00,#ffee00,#00d18f,#00cfff,#8000ff,#ff0080);
+}
+@keyframes holo-flow { to { background-position: 300% 0; } }
+@keyframes holo-rotate { to { --holo-angle: 360deg; } }
+@keyframes shine-sweep { 0% { left:-80%; } 60%,100% { left:130%; } }
+@keyframes aurora-drift { to { transform: translateX(-50%) translate(60px,40px) scale(1.18); } }
+
+/* 全息渐变流动文字 */
+.holo-text {
+  background: var(--holo-grad); background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: holo-flow 8s linear infinite;
+}
+
+/* ===== Home：全息 Hero ===== */
+#home-view { position: relative; overflow: hidden; }
+.holo-aurora {
+  position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 920px; height: 620px; z-index: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(128,0,255,.12), rgba(0,207,255,.09), rgba(255,0,128,.06), transparent);
+  filter: blur(32px); animation: aurora-drift 13s ease-in-out infinite alternate;
+}
+.home-logo .gxx { color: #1b1b2a; }
+.home-logo .abap {
+  background: var(--holo-grad); background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: holo-flow 8s linear infinite;
+}
+/* 安装框：彩虹流光边框 */
+.install-wrap { position: relative; z-index: 1; max-width: 560px; width: 100%; }
+.holo-border {
+  border-radius: 16px; padding: 2.5px;
+  background: conic-gradient(from var(--holo-angle), #ff0080,#ff8c00,#ffee00,#00d18f,#00cfff,#8000ff,#ff0080);
+  animation: holo-rotate 4.5s linear infinite;
+  box-shadow: 0 12px 32px rgba(128,0,255,.16);
+}
+.holo-border .install-box { background: #ffffff; border: none; border-radius: 13.5px; margin: 0; max-width: none; box-shadow: none; }
+/* 主按钮：全息渐变流动 */
+.btn-primary {
+  background: linear-gradient(90deg,#8000ff,#00cfff,#8000ff); background-size: 200% 100%;
+  animation: holo-flow 6s linear infinite;
+  border: none; color: #fff; box-shadow: 0 10px 26px rgba(128,0,255,.28);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(128,0,255,.38); }
+/* ===== Docs：全息点缀 ===== */
+.doc-section h1 { position: relative; border-bottom: 1px solid var(--border); }
+.doc-section h1::after {
+  content: ''; position: absolute; left: 0; bottom: -1px; height: 3px; width: 130px;
+  background: linear-gradient(90deg,#8000ff,#00cfff,transparent); border-radius: 2px;
+}
+.doc-section h1 .cmd-name, .doc-section h2 .cmd-name {
+  background: linear-gradient(90deg,#8000ff,#00cfff); color: #fff;
+  padding: 3px 14px; border-radius: 8px; box-shadow: 0 4px 14px rgba(128,0,255,.22);
+}
+.doc-section h2 { display: flex; align-items: center; gap: 10px; }
+.doc-section h2::before { content: ''; width: 4px; height: 22px; border-radius: 2px; background: linear-gradient(180deg,#8000ff,#00cfff); flex-shrink: 0; }
+/* 命令 chip：彩虹 hover */
+.cmd-chip:hover, .overview-card .cmd-chip:hover, .overview-table .cmd-chip:hover {
+  background: linear-gradient(90deg, rgba(128,0,255,.10), rgba(0,207,255,.10));
+  border-color: #8000ff; color: #6d28d9;
+}
+/* 侧边栏 active：彩虹渐变 */
+.sidebar-link.active {
+  color: #6d28d9; border-left-color: #8000ff;
+  background: linear-gradient(90deg, rgba(128,0,255,.08), rgba(0,207,255,.05));
+}
+/* 复制按钮：全息渐变 */
+.copy-btn { background: linear-gradient(90deg,#8000ff,#00cfff); border: none; }
+.copy-btn:hover { background: linear-gradient(90deg,#6d28d9,#00a8dd); }
+.copy-btn.copied { background: var(--green); }
+/* 代码块：hover 紫光描边 */
+.code-block { transition: box-shadow .3s; }
+.code-block:hover { box-shadow: 0 0 0 1.5px rgba(128,0,255,.35), 0 8px 24px rgba(128,0,255,.08); }
+/* JSON 返回 / callout / 链接 / 滚动条 */
+.json-return { border-left-color: #8000ff; }
+.json-return .label { color: #7c3aed; }
+.callout { background: rgba(124,58,237,.05); border-color: rgba(124,58,237,.16); }
+.callout strong { color: #7c3aed; }
+a { color: #6d28d9; }
+a:hover { color: #8b5cf6; }
+.docs-sidebar::-webkit-scrollbar-thumb, .docs-content::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#8000ff,#00cfff); }
+.footer { background: #ffffff; }
 </style>
 </head>
 <body>
 
 <!-- ===== Home View ===== -->
 <div id="home-view">
+  <div class="holo-aurora"></div>
   <div class="home-logo">
     <span class="gxx">GXX</span><span class="abap">ABAP</span>
   </div>
   <p class="home-tagline">SAP ABAP ADT 命令行工具 — 从终端操作 SAP ABAP 开发系统</p>
 
-  <div class="install-box">
-    <span class="prompt">$</span>
-    <span class="cmd-text"><span class="npm">npm</span> install -g <span class="pkg">gxx-abap</span></span>
-    <button class="copy-btn" onclick="copyInstall(this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      复制
-    </button>
+  <div class="install-wrap">
+    <div class="holo-border">
+      <div class="install-box">
+        <span class="prompt">$</span>
+        <span class="cmd-text"><span class="npm">npm</span> install -g <span class="pkg">gxx-abap</span></span>
+        <button class="copy-btn" onclick="copyInstall(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          复制
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="home-actions">
@@ -1474,8 +1581,15 @@ window.addEventListener('popstate', function(e) {
   _skipPushState = false;
 });
 
-// Set initial state
-history.replaceState({ view: 'home' }, '', '#');
+// Set initial state + deep-link support (open a docs section directly via #/<target>)
+(function() {
+  var h = window.location.hash;
+  if (h && h.indexOf('#/') === 0 && h.length > 2) {
+    var t = h.substring(2);
+    if (document.getElementById(t)) { showDocs(t); return; }
+  }
+  history.replaceState({ view: 'home' }, '', '#');
+})();
 
 function updateNavActive(target) {
   document.querySelectorAll('.sidebar-link').forEach(link => {
