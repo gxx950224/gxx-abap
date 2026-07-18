@@ -1,6 +1,6 @@
 {
   "name": "gxx-abap",
-  "version": "1.1.4",
+  "version": "1.1.6",
   "description": "ABAP ADT CLI - 从命令行操作 SAP ABAP 开发系统",
   "main": "src/index.js",
   "bin": {

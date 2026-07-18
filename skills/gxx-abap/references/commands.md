@@ -150,7 +150,16 @@ echo "KEY  =VALUE" | gxx-abap texts ZTEST --set selections
 | `--file` | 文件路径 |
 | `--force-unlock` | 写入前强制解锁 |
 
-写入文件格式：`KEY  =VALUE`（等号前空格补齐）。
+写入文件格式：每行 KEY =VALUE（KEY 和 = 间用空格补齐对齐）
+symbols写入文件格式：首行 `@MaxLength:N`（N=最大文本字节数），后续行 `KEY=VALUE`。
+
+```
+@MaxLength:12
+001=公司代码
+002=公司名称
+```
+
+> 注意：symbols 只支持**更新**已存在的文本符号，不支持新建。新建需通过 SE80。
 
 ---
 

@@ -1074,6 +1074,16 @@ a:hover { color: var(--blue-light); }
         <div class="callout">
           <strong>写入文件格式：</strong>每行 <code>KEY  =VALUE</code>（KEY 和 <code>=</code> 间用空格补齐对齐）
         </div>
+        <div class="callout">
+          <strong>symbols 写入文件格式：</strong>首行 <code>@MaxLength:N</code>（N=最大文本字节数），后续行 <code>KEY=VALUE</code>（单等号无空格）。
+          <div class="code-block" style="margin-top:8px">
+            <div class="code-block-header"><span>txt</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
+            <pre>@MaxLength:12
+001=公司代码
+002=公司名称</pre>
+          </div>
+          <strong>注意：</strong>symbols 只支持<strong>更新</strong>已存在的文本符号，不支持新建（DS 512）。新建需通过 SE80。<code>selections</code> 和 <code>headings</code> 无此限制。
+        </div>
       </section>
 
       <!-- ===== system ===== -->

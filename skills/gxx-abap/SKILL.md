@@ -22,7 +22,7 @@ agent_created: true
 3. **写入源码标准流程** — `ls` 检查 → `create` → 写本地文件 → `put` 写入 SAP → `activate` 激活 → `check` 验证 → 看错误修正后重试。
 4. **修改已有对象流程** — `cat` 读源码 → 修改 → `put` 写入 → `activate` 激活。
 5. **排查故障用 `dump`** — 程序 DUMP 后用 `gxx-abap dump` 查详情，从 `termination.line` 定位出错行。
-6. **文本元素格式** — `KEY  =VALUE`，KEY 与 `=` 间至少一个空格（等号前空格补齐）。
+6. **文本元素格式** — 首行 `@MaxLength:N`（最大文本字节数），后续行 `KEY=VALUE`（单等号）。selections/headings 无 MaxLength 头。symbols 只支持更新已存在条目，不能新建（DS 512）。
 7. **传输号是任务号不是请求号** — `transport list` 返回值是请求号；`create --transport` 需要的是其下的**任务号**（在 SE10 展开节点确认）。
 8. **查看表字段用 `meta` 不用 `cat`** — `meta` 直接返回结构化字段列表；`cat -t table` 只返回表头定义源码，不直接。
 9. **`put` 自动解锁** — 写入后在 finally 块自动调用解锁接口，不用手动调解锁；残留锁可用 `--force-unlock`。

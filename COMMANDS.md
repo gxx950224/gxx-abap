@@ -346,8 +346,16 @@ gxx-abap texts YTEST --set selections --file sel.txt --force-unlock
 | `--force-unlock` | 写入 | 写入前强制解除 GUI 残留锁 |
 
 **JSON 返回（查看）**：`{ name, selections: [{ key, text }], symbols: [...], headings: [...] }`
+**写入文件格式**：每行 KEY =VALUE（KEY 和 = 间用空格补齐对齐）
+**symbols写入文件格式**：首行 `@MaxLength:N`（N=最大文本字节数），后续行 `KEY=VALUE`（单等号无空格）。
 
-**写入文件格式**：每行 `KEY  =VALUE`（KEY 和 `=` 间用空格补齐对齐）。
+```
+@MaxLength:12
+001=公司代码
+002=公司名称
+```
+
+> 注意：symbols 只支持**更新**已存在的文本符号，不支持新建（DS 512）。新建需通过 SE80。selections 和 headings 无此限制。
 
 ---
 

@@ -1,3 +1,6 @@
 node_modules/
+src/_*.js
 index.html
 SAP7.57ADT接口清单.md
+.gitignore
+.npmignore
