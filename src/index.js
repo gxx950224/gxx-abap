@@ -150,7 +150,7 @@ function run() {
         }
         const typeMap = {
           'PROG/P': '程序', 'CLAS/OC': '类', 'INTF/OI': '接口',
-          'TABL/DT': '表', 'TABL/DS': '结构', 'FUGR/F': '函数组',
+          'TABL/DT': '表', 'TABL/DS': '结构',
           'DDLS/DF': 'CDS视图', 'FUGR/I': '函数组Include', 'TRAN/T': '事务码',
           'FUGR/FF': '函数模块',
         };
@@ -176,13 +176,19 @@ function run() {
   program
     .command('cat')
     .description('查看对象源码')
-    .argument('<path>', '对象名（自动识别类/程序/接口，表需指定 -t table）')
-    .option('-t, --type <type>', '对象类型: class, program, interface, function')
+    .argument('<path>', '对象名（自动识别类/程序/接口）')
+    .option('-t, --type <type>', '对象类型: class, program, interface, table, fm')
+    
     .option('--json', 'JSON格式输出')
     .action(async (objPath, opts) => {
       try {
         const type = opts.type || guessType(objPath);
-        const adtPath = resolveAdtPath(objPath, type);
+        if (type === 'fm' && !opts.group) {
+          const found = await discoverFmGroup(objPath, client);
+          if (!found) throw new Error('未找到函数模块 ' + objPath + '，请手动指定 --group');
+          opts.group = found;
+        }
+        const adtPath = resolveAdtPath(objPath, type, opts.group);
         const res = await client.request('GET', adtPath);
         if (res.status !== 200) {
           const errMsg = res.body.match(/<message[^>]*>([^<]+)/);
@@ -199,7 +205,7 @@ function run() {
     .command('create')
     .description('创建ABAP对象')
     .argument('<name>', '对象名称')
-    .requiredOption('-t, --type <type>', '对象类型 (class, program, interface, function)')
+    .requiredOption('-t, --type <type>', '对象类型 (class, program, interface)')
     .option('--description <desc>', '对象描述')
     .option('--package <pkg>', '开发类/包名（默认 $TMP）')
     .option('--transport <tr>', '传输请求号（不指定则 SAP 自动创建）')
@@ -223,9 +229,6 @@ function run() {
             break;
           case 'table':
             contentType = 'application/vnd.sap.adt.tables.v2+xml';
-            break;
-          case 'function':
-            contentType = 'application/vnd.sap.adt.functions.groups.v2+xml';
             break;
         }
 
@@ -278,23 +281,8 @@ function run() {
             break;
           }
 
-          case 'function': {
-            adtPath = '/sap/bc/adt/functions/groups';
-            body = `<?xml version="1.0" encoding="UTF-8"?>
-<group:abapFunctionGroup
-  xmlns:group="http://www.sap.com/adt/functions/groups"
-  xmlns:adtcore="http://www.sap.com/adt/core"
-  adtcore:name="${upperName}"
-  adtcore:description="${desc}"
-  adtcore:responsible="${cfg.showConnection()?.user || 'DEVUSER'}"
-  adtcore:masterLanguage="ZH">
-  <adtcore:packageRef adtcore:name="${opts.package || '$TMP'}"/>
-</group:abapFunctionGroup>`;
-            break;
-          }
-
           default:
-            throw new Error(`不支持的对象类型: ${opts.type}，支持: class, program, interface, function`);
+            throw new Error(`不支持的对象类型: ${opts.type}，支持: class, program, interface, fm`);
         }
 
         const url = adtPath + (opts.transport ? `?corrNr=${opts.transport.toUpperCase()}` : '');
@@ -325,7 +313,8 @@ function run() {
     .description('写入源码（锁定→写入→解锁）')
     .argument('<path>', '对象名')
     .argument('[file]', '源码文件路径（不传则从stdin读取）')
-    .option('-t, --type <type>', '对象类型: class, program, interface, function')
+    .option('-t, --type <type>', '对象类型: class, program, interface, fm')
+    
     .option('--force-unlock', '写入前先强制解锁（用于解除残留锁）')
     .option('--json', 'JSON格式输出')
     .action(async (objPath, file, opts) => {
@@ -337,6 +326,11 @@ function run() {
         const _type = opts.type || guessType(objPath);
         if (_type === 'table' || _type === 'cds') {
           throw new Error('此系统不支持通过 REST API 写入 ' + _type + ' 源码');
+        }
+        if (_type === 'fm' && !opts.group) {
+          const found = await discoverFmGroup(objPath, client);
+          if (!found) throw new Error('未找到函数模块 ' + objPath + '，请手动指定 --group');
+          opts.group = found;
         }
         let source;
         if (file) {
@@ -440,10 +434,32 @@ function run() {
     });
 
   program
+    .command('unlock')
+    .description('调用 AI_PUT_UNLOCK 接口释放对象锁')
+    .argument('<name>', '对象名（程序/函数组/类等）')
+    .option('--json', 'JSON格式输出')
+    .action(async (objName, opts) => {
+      try {
+        const result = await customUnlock(objName);
+        if (opts.json) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          console.log(`解锁结果: ${result.STATUS === 'S' ? '✅ 成功' : '❌ 失败'}`);
+          if (result.MSGTXT) console.log(`  ${result.MSGTXT}`);
+        }
+      } catch (e) {
+        console.error(`解锁失败: ${e.message}`);
+        process.exit(1);
+      }
+    });
+
+  program
     .command('activate')
+
     .description('激活对象')
     .argument('<path>', '对象名（程序/类/接口/表）')
-    .option('-t, --type <type>', '对象类型: class, program, interface, function')
+    .option('-t, --type <type>', '对象类型: class, program, interface, fm')
+    
     .option('--json', 'JSON格式输出')
     .action(async (objPath, opts) => {
       try {
@@ -600,71 +616,6 @@ function run() {
     
 
   // ── 代码检查 ──
-  program
-    .command('check')
-    .description('语法检查')
-    .argument('<path>', '对象路径')
-    .option('-t, --type <type>', '对象类型: class, program, table, interface, function')
-    .option('--json', 'JSON格式输出')
-    .action(async (path, opts) => {
-      try {
-        if (!path) {
-          console.error('请指定对象路径');
-          process.exit(1);
-        }
-        const objType = opts.type || guessType(path);
-        const name = path.replace(/^.*[/\\]/, '').toLowerCase();
-        const sourceUri = resolveAdtPath(name, objType);
-        const adtType = resolveAdtType(objType);
-
-        const body = `<?xml version="1.0" encoding="UTF-8"?>
-<checkrun:checkRun xmlns:checkrun="http://www.sap.com/adt/checkrun" xmlns:adtcore="http://www.sap.com/adt/core">
-  <adtcore:objectReferences>
-    <adtcore:objectReference adtcore:uri="${sourceUri}" adtcore:type="${adtType}" adtcore:name="${name.toUpperCase()}"/>
-  </adtcore:objectReferences>
-</checkrun:checkRun>`;
-
-        const res = await client.request('POST', '/sap/bc/adt/checkruns', {
-          body,
-          headers: { 'Content-Type': 'application/xml' },
-        });
-
-        const findings = [];
-        const fRegex = /<finding[^>]*>([\s\S]*?)<\/finding>/g;
-        let fMatch;
-        while ((fMatch = fRegex.exec(res.body)) !== null) {
-          const f = fMatch[1];
-          const sev = f.match(/severity="([^"]+)"/)?.[1] || '';
-          const line = f.match(/line="([^"]+)"/)?.[1];
-          const msgMatch = f.match(/<message[^>]*>([^<]+)/);
-          const msg = msgMatch ? msgMatch[1] : '';
-          if (msg) findings.push({ severity: sev, line, message: msg });
-        }
-
-        const errors = findings.filter(f => f.severity === 'ERROR' || f.severity === 'error');
-        const warnings = findings.filter(f => f.severity === 'WARNING' || f.severity === 'warning');
-
-        if (opts.json) {
-          console.log(JSON.stringify({ type: 'syntax', path, findings, errors: errors.length, warnings: warnings.length }, null, 2));
-        } else {
-          if (findings.length === 0) {
-            console.log('✅ 语法检查通过，无错误');
-          } else {
-            console.log(`语法检查完成：${errors.length} 错误，${warnings.length} 警告\n`);
-            for (const f of findings) {
-              const icon = f.severity === 'ERROR' || f.severity === 'error' ? '❌' : '⚠';
-              console.log(`  ${icon} L${f.line || '?'}: ${f.message}`);
-            }
-          }
-        }
-        if (errors.length > 0) process.exit(1);
-      } catch (e) {
-        console.error(`语法检查失败: ${e.message}`);
-        process.exit(1);
-      }
-    });
-  ;
-
     // ── 表结构 ──
   program
     .command('meta')
@@ -1251,13 +1202,19 @@ function run() {
     .command('refs')
     .description('Where-Used 引用查询')
     .argument('<name>', '对象名')
-    .option('-t, --type <type>', '对象类型: program, class, table, interface, function')
+    .option('-t, --type <type>', '对象类型: program, class, table, interface, function, fm')
+    
     .option('--json', 'JSON格式输出')
     .action(async (objName, opts) => {
       try {
         const type = opts.type || guessType(objName);
+        if (type === 'fm' && !opts.group) {
+          const found = await discoverFmGroup(objName, client);
+          if (!found) throw new Error('未找到函数模块 ' + objName + '，请手动指定 --group');
+          opts.group = found;
+        }
         const name = objName.toUpperCase();
-        const sourceUri = resolveAdtPath(name, type);
+        const sourceUri = resolveAdtPath(name, type, opts.group);
         const adtType = resolveAdtType(type);
 
         const body = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1474,15 +1431,58 @@ function extractSource(xmlBody) {
   return xmlBody;
 }
 
+
+// 自动发现函数模块所属的函数组名
+async function discoverFmGroup(fmName, client) {
+  const res = await client.request('GET',
+    `/sap/bc/adt/repository/informationsystem/executableObjects?query=${encodeURIComponent(fmName)}&maxResults=10`
+  );
+  const uriMatch = res.body.match(new RegExp(
+    `adtcore:uri="/sap/bc/adt/functions/groups/([^/]+)/fmodules/${fmName.toLowerCase()}"[^>]*adtcore:type="FUGR/FF"`,
+    'i'
+  ));
+  const match = uriMatch;
+  return match ? match[1] : null;
+}
+
+
+// 调用自定义解锁接口 AI_PUT_UNLOCK
+async function customUnlock(objName) {
+  const cfg = require('./config');
+  const conn = cfg.getConnection();
+  if (!conn) return { status: 'error', message: '未配置连接' };
+  const http = require(conn.protocol === 'http' ? 'http' : 'https');
+  const auth = Buffer.from(`${conn.user}:${conn.password}`).toString('base64');
+  const name = objName.replace(/^.*[/\\]/, '').toUpperCase();
+  const postData = JSON.stringify({ GRAG: name });
+  return new Promise((resolve) => {
+    const req = http.request({
+      hostname: conn.host, port: conn.port || '44300',
+      path: `/sap/bc/zsx_intf_serv/zsx_oa?sap-client=${conn.client || '100'}&INTFID=AI_PUT_UNLOCK`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}`, 'Content-Length': Buffer.byteLength(postData) },
+      rejectUnauthorized: false, timeout: 10000,
+    }, (res) => {
+      let body = '';
+      res.on('data', d => body += d);
+      res.on('end', () => {
+        try { resolve(JSON.parse(body)); } catch (_) { resolve({ raw: body }); }
+      });
+    });
+    req.on('error', () => resolve({ status: 'error', message: '请求失败' }));
+    req.write(postData);
+    req.end();
+  });
+}
+
 function guessType(name) {
   const upper = name.toUpperCase();
   if (upper.startsWith('CL_') || upper.startsWith('ZCL_')) return 'class';
   if (upper.startsWith('IF_') || upper.startsWith('ZIF_')) return 'interface';
-  if (upper.startsWith('SAPL') || /^(Z|Y)\w{2,3}$/.test(upper)) return 'function';
   return 'program';
 }
 
-function resolveAdtPath(objPath, type) {
+function resolveAdtPath(objPath, type, groupName) {
   if (objPath.startsWith('/sap/bc/adt/')) return objPath;
   const name = objPath.replace(/^.*[/\\\\]/, '');
   switch (type) {
@@ -1491,17 +1491,19 @@ function resolveAdtPath(objPath, type) {
     case 'table':     return `/sap/bc/adt/ddic/tables/${name.toLowerCase()}/source/main`;
     case 'function':  return `/sap/bc/adt/functions/groups/${name.toLowerCase()}/source/main`;
 
+    case 'fm':        return `/sap/bc/adt/functions/groups/${(groupName || name).toLowerCase()}/fmodules/${name.toLowerCase()}/source/main`;
     case 'program':   return `/sap/bc/adt/programs/programs/${name}/source/main`;
     default:          return `/sap/bc/adt/programs/programs/${name}/source/main`;
   }
 }
 
-function resolveAdtBase(name, type) {
+function resolveAdtBase(name, type, groupName) {
   const n = name.replace(/^.*[/\\\\]/, '').toLowerCase();
   switch (type) {
     case 'class':     return `/sap/bc/adt/oo/classes/${n}`;
     case 'interface': return `/sap/bc/adt/oo/interfaces/${n}`;
     case 'function':  return `/sap/bc/adt/functions/groups/${n}`;
+    case 'fm':        return `/sap/bc/adt/functions/groups/${(groupName || n).toLowerCase()}/fmodules/${n}`;
     case 'program':   return `/sap/bc/adt/programs/programs/${n}`;
     default:          return `/sap/bc/adt/programs/programs/${n}`;
   }
@@ -1512,6 +1514,7 @@ function resolveAdtType(type) {
     case 'class':     return 'CLAS/OC';
     case 'interface': return 'INTF/OI';
     case 'function':  return 'FUGR/F';
+    case 'fm':        return 'FUGR/FF';
     case 'program':   return 'PROG/P';
     default:          return 'PROG/P';
   }

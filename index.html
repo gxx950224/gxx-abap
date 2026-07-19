@@ -596,10 +596,10 @@ a:hover { color: #8b5cf6; }
         <div class="sidebar-link" data-target="cmd-cat" onclick="showDocs('cmd-cat')">cat</div>
         <div class="sidebar-link" data-target="cmd-create" onclick="showDocs('cmd-create')">create</div>
         <div class="sidebar-link" data-target="cmd-put" onclick="showDocs('cmd-put')">put</div>
+        <div class="sidebar-link" data-target="cmd-unlock" onclick="showDocs('cmd-unlock')">unlock</div>
         <div class="sidebar-link" data-target="cmd-activate" onclick="showDocs('cmd-activate')">activate</div>
         <div class="sidebar-link" data-target="cmd-transport" onclick="showDocs('cmd-transport')">transport</div>
-        <div class="sidebar-link" data-target="cmd-check" onclick="showDocs('cmd-check')">check</div>
-        <div class="sidebar-link" data-target="cmd-meta" onclick="showDocs('cmd-meta')">meta</div>
+                <div class="sidebar-link" data-target="cmd-meta" onclick="showDocs('cmd-meta')">meta</div>
         <div class="sidebar-link" data-target="cmd-refs" onclick="showDocs('cmd-refs')">refs</div>
         <div class="sidebar-link" data-target="cmd-dump" onclick="showDocs('cmd-dump')">dump</div>
         <div class="sidebar-link" data-target="cmd-message" onclick="showDocs('cmd-message')">message</div>
@@ -687,8 +687,7 @@ a:hover { color: #8b5cf6; }
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-put')">put</span></td><td>-t, --json</td><td>写入源码</td></tr>
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-activate')">activate</span></td><td>--json</td><td>激活对象</td></tr>
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-transport')">transport</span></td><td>--json</td><td>传输请求列表与对象关联查询</td></tr>
-            <tr><td><span class="cmd-chip" onclick="showDocs('cmd-check')">check</span></td><td>--json</td><td>语法检查，返回错误行号与消息</td></tr>
-            <tr><td><span class="cmd-chip" onclick="showDocs('cmd-meta')">meta</span></td><td>-t, --json</td><td>查看表结构字段定义</td></tr>
+                        <tr><td><span class="cmd-chip" onclick="showDocs('cmd-meta')">meta</span></td><td>-t, --json</td><td>查看表结构字段定义</td></tr>
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-refs')">refs</span></td><td>-t, --json</td><td>Where-Used 引用查询</td></tr>
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-dump')">dump</span></td><td>-t, --json</td><td>短转储（ST22）查询</td></tr>
             <tr><td><span class="cmd-chip" onclick="showDocs('cmd-message')">message</span></td><td>-t, --json</td><td>消息类消息号查询</td></tr>
@@ -834,7 +833,7 @@ a:hover { color: #8b5cf6; }
           <code>{ search, count, objects: [{ name, type }] }</code>
         </div>
         <div class="callout">
-          <strong>type 映射：</strong><code>PROG/P</code> 程序、<code>CLAS/OC</code> 类、<code>INTF/OI</code> 接口、<code>TABL/DT</code> 表、<code>FUGR/F</code> 函数组、<code>FUGR/FF</code> 函数模块、<code>DDLS/DF</code> CDS 视图
+          <strong>type 映射：</strong><code>PROG/P</code> 程序、<code>CLAS/OC</code> 类、<code>INTF/OI</code> 接口、<code>TABL/DT</code> 表、<code>FUGR/FF</code> 函数模块、<code>DDLS/DF</code> CDS 视图
         </div>
       </section>
 
@@ -849,7 +848,8 @@ a:hover { color: #8b5cf6; }
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">zppr090</span>                          <span class="tk-cmt"># 自动识别为程序</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">zcl_hello</span> <span class="tk-flag">-t</span> <span class="tk-str">class</span>               <span class="tk-cmt"># 指定为类</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">ekko</span> <span class="tk-flag">-t</span> <span class="tk-str">table</span>                    <span class="tk-cmt"># 表（必须手动指定）</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">zppr090</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--json</span></pre>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">zppr090</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--json</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">cat</span> <span class="tk-str">ZTEST</span> <span class="tk-flag">-t</span> <span class="tk-str">fm</span>                        <span class="tk-cmt"># 函数模块（自动发现函数组）</span></pre>
         </div>
         <h3>参数</h3>
         <table class="param-table">
@@ -860,13 +860,12 @@ a:hover { color: #8b5cf6; }
           </tbody>
         </table>
         <div class="callout">
-          <strong>-t 可选值：</strong><code>class</code> <code>program</code> <code>interface</code> <code>table</code> <code>function</code>
+          <strong>-t 可选值：</strong><code>class</code> <code>program</code> <code>interface</code> <code>table</code> <code>fm</code>
         </div>
         <h3>自动识别规则</h3>
         <ul>
           <li><code>CL_*</code> / <code>ZCL_*</code> → <code>class</code></li>
           <li><code>IF_*</code> / <code>ZIF_*</code> → <code>interface</code></li>
-          <li><code>SAPL*</code> / <code>Z*</code> / <code>Y*</code>（短名，2-3位）→ <code>function</code></li>
           <li>其他 → <code>program</code></li>
         </ul>
       </section>
@@ -881,14 +880,14 @@ a:hover { color: #8b5cf6; }
           <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">create</span> <span class="tk-str">&lt;name&gt;</span> <span class="tk-flag">-t</span> <span class="tk-str">&lt;type&gt;</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">create</span> <span class="tk-str">YTEST</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">create</span> <span class="tk-str">ZCL_HELLO</span> <span class="tk-flag">-t</span> <span class="tk-str">class</span> <span class="tk-flag">--description</span> <span class="tk-str">"Hello World"</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">create</span> <span class="tk-str">ZAI_FUNC</span> <span class="tk-flag">-t</span> <span class="tk-str">function</span> <span class="tk-flag">--package</span> <span class="tk-str">ZAI</span> <span class="tk-flag">--transport</span> <span class="tk-str">DS4K939701</span></pre>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">create</span> <span class="tk-str">ZIF_MY_INTF</span> <span class="tk-flag">-t</span> <span class="tk-str">interface</span> <span class="tk-flag">--package</span> <span class="tk-str">ZAI</span> <span class="tk-flag">--transport</span> <span class="tk-str">DS4K939701</span></pre>
         </div>
         <h3>参数</h3>
         <table class="param-table">
           <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
           <tbody>
             <tr><td>&lt;name&gt;</td><td><span class="req">是</span></td><td>对象名称（自动转大写）</td></tr>
-            <tr><td>-t, --type &lt;type&gt;</td><td><span class="req">是</span></td><td><code>class</code> <code>program</code> <code>interface</code> <code>function</code></td></tr>
+            <tr><td>-t, --type &lt;type&gt;</td><td><span class="req">是</span></td><td><code>class</code> <code>program</code> <code>interface</code></td></tr>
             <tr><td>--description &lt;desc&gt;</td><td><span class="opt">否</span></td><td>对象描述</td></tr>
             <tr><td>--package &lt;pkg&gt;</td><td><span class="opt">否</span></td><td>包名，默认 <code>$TMP</code></td></tr>
             <tr><td>--transport &lt;tr&gt;</td><td><span class="opt">否</span></td><td>传输任务号（非请求号，SE10 展开可见）</td></tr>
@@ -905,7 +904,8 @@ a:hover { color: #8b5cf6; }
           <div class="code-block-header"><span>bash</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
           <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">put</span> <span class="tk-str">&lt;对象名&gt;</span> <span class="tk-str">&lt;文件路径&gt;</span> <span class="tk-flag">-t</span> <span class="tk-str">&lt;type&gt;</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">cat</span> <span class="tk-str">mycode.abap</span> | <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">put</span> <span class="tk-str">ztest</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span>    <span class="tk-cmt"># 管道传入</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">put</span> <span class="tk-str">ztest</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--force-unlock</span>       <span class="tk-cmt"># 强制解锁后写入</span></pre>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">put</span> <span class="tk-str">ztest</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--force-unlock</span>       <span class="tk-cmt"># 强制解锁后写入</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">put</span> <span class="tk-str">ZTEST</span> <span class="tk-flag">-t</span> <span class="tk-str">fm</span>                        <span class="tk-cmt"># 函数模块（自动发现函数组）</span></pre>
         </div>
         <h3>参数</h3>
         <table class="param-table">
@@ -913,10 +913,34 @@ a:hover { color: #8b5cf6; }
           <tbody>
             <tr><td>&lt;path&gt;</td><td><span class="req">是</span></td><td>对象名</td></tr>
             <tr><td>[file]</td><td><span class="opt">否</span></td><td>源码文件路径，不传则从 stdin 读取</td></tr>
-            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>class</code> <code>program</code> <code>interface</code> <code>function</code></td></tr>
+            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>class</code> <code>program</code> <code>interface</code> <code>fm</code></td></tr>
             <tr><td>--force-unlock</td><td><span class="opt">否</span></td><td>写入前先强制解除残留锁</td></tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- ===== unlock ===== -->
+      <section class="doc-section cmd-anchor" id="cmd-unlock">
+        <h1><span class="cmd-name">unlock</span></h1>
+        <p>调用 AI_PUT_UNLOCK 接口释放对象锁（SE80/SE37 编辑残留锁）。</p>
+        <h2>用法</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span>bash</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
+          <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">unlock</span> <span class="tk-str">&lt;对象名&gt;</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">unlock</span> <span class="tk-str">ZPPR090</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">unlock</span> <span class="tk-str">ZZZ_TEST_API3</span> <span class="tk-flag">--json</span></pre>
+        </div>
+        <h3>参数</h3>
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>&lt;name&gt;</td><td><span class="req">是</span></td><td>对象名</td></tr>
+          </tbody>
+        </table>
+        <div class="json-return">
+          <div class="label">JSON 返回</div>
+          <code>{ STATUS, MSGTXT }</code>
+        </div>
       </section>
 
       <!-- ===== activate ===== -->
@@ -928,14 +952,15 @@ a:hover { color: #8b5cf6; }
           <div class="code-block-header"><span>bash</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
           <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">activate</span> <span class="tk-str">&lt;对象名&gt;</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">activate</span> <span class="tk-str">zcl_hello</span> <span class="tk-flag">-t</span> <span class="tk-str">class</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">activate</span> <span class="tk-str">zppr090</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--json</span></pre>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">activate</span> <span class="tk-str">zppr090</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span> <span class="tk-flag">--json</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">activate</span> <span class="tk-str">ZTEST</span> <span class="tk-flag">-t</span> <span class="tk-str">fm</span>                   <span class="tk-cmt"># 函数模块（自动发现函数组）</span></pre>
         </div>
         <h3>参数</h3>
         <table class="param-table">
           <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
           <tbody>
             <tr><td>&lt;path&gt;</td><td><span class="req">是</span></td><td>对象名</td></tr>
-            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>class</code> <code>program</code> <code>interface</code> <code>function</code></td></tr>
+            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>class</code> <code>program</code> <code>interface</code> <code>fm</code></td></tr>
           </tbody>
         </table>
         <div class="json-return">
@@ -968,31 +993,6 @@ a:hover { color: #8b5cf6; }
           <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">transport</span> <span class="tk-cmd">list</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">transport</span> <span class="tk-cmd">object</span> <span class="tk-str">ZPPR090</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">transport</span> <span class="tk-cmd">list</span> <span class="tk-flag">--json</span></pre>
-        </div>
-      </section>
-
-      <!-- ===== check ===== -->
-      <section class="doc-section cmd-anchor" id="cmd-check">
-        <h1><span class="cmd-name">check</span></h1>
-        <p>语法检查。</p>
-        <h2>用法</h2>
-        <div class="code-block">
-          <div class="code-block-header"><span>bash</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
-          <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">check</span> <span class="tk-str">&lt;对象名&gt;</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">check</span> <span class="tk-str">zppr090</span> <span class="tk-flag">-t</span> <span class="tk-str">program</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">check</span> <span class="tk-str">zcl_hello</span> <span class="tk-flag">-t</span> <span class="tk-str">class</span> <span class="tk-flag">--json</span></pre>
-        </div>
-        <h3>参数</h3>
-        <table class="param-table">
-          <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td>&lt;path&gt;</td><td><span class="req">是</span></td><td>对象名</td></tr>
-            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>class</code> <code>program</code> <code>table</code> <code>interface</code> <code>function</code></td></tr>
-          </tbody>
-        </table>
-        <div class="json-return">
-          <div class="label">JSON 返回</div>
-          <code>{ type, path, findings: [{ severity, line, message }], errors, warnings }</code>
         </div>
       </section>
 
@@ -1049,14 +1049,15 @@ a:hover { color: #8b5cf6; }
           <div class="code-block-header"><span>bash</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
           <pre><span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">refs</span> <span class="tk-str">&lt;对象名&gt;</span>
 <span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">refs</span> <span class="tk-str">ZBCT_INTF_MCP</span> <span class="tk-flag">-t</span> <span class="tk-str">table</span>
-<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">refs</span> <span class="tk-str">ZDOWNLOAD_ABAP</span> <span class="tk-flag">--json</span></pre>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">refs</span> <span class="tk-str">ZDOWNLOAD_ABAP</span> <span class="tk-flag">--json</span>
+<span class="tk-prompt">$</span> <span class="tk-cmd">gxx-abap</span> <span class="tk-cmd">refs</span> <span class="tk-str">ZTEST</span> <span class="tk-flag">-t</span> <span class="tk-str">fm</span>                       <span class="tk-cmt"># 函数模块（自动发现函数组）</span></pre>
         </div>
         <h3>参数</h3>
         <table class="param-table">
           <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
           <tbody>
             <tr><td>&lt;name&gt;</td><td><span class="req">是</span></td><td>对象名</td></tr>
-            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>program</code> <code>class</code> <code>table</code> <code>interface</code> <code>function</code></td></tr>
+            <tr><td>-t, --type &lt;type&gt;</td><td><span class="opt">否</span></td><td><code>program</code> <code>class</code> <code>table</code> <code>interface</code> <code>function</code> <code>fm</code></td></tr>
           </tbody>
         </table>
         <div class="json-return">
@@ -1064,7 +1065,7 @@ a:hover { color: #8b5cf6; }
           <code>{ object, type, count, references: [{ name, type, description, uri }] }</code>
         </div>
         <div class="callout">
-          <strong>类型映射：</strong><code>PROG/P</code> 程序、<code>PROG/I</code> Include、<code>CLAS/OC</code> 类、<code>FUGR/F</code> 函数组、<code>FUGR/FF</code> 函数模块、<code>TABL/DT</code> 表
+          <strong>类型映射：</strong><code>PROG/P</code> 程序、<code>PROG/I</code> Include、<code>CLAS/OC</code> 类、<code>FUGR/FF</code> 函数模块、<code>TABL/DT</code> 表
         </div>
       </section>
 
@@ -1278,244 +1279,281 @@ a:hover { color: #8b5cf6; }
       <section class="doc-section" id="skill-gxx-abap">
         <h1>gxx-abap Skill</h1>
         <a href="https://raw.githubusercontent.com/gxx950224/gxx-abap/refs/heads/main/skills/gxx-abap.zip" download style="display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;margin-bottom:20px;">⬇ 下载 gxx-abap.zip</a>
-        <p>gxx-abap 项目内置了 Agent Skill，供 AI Agent（如 WorkBuddy、Claude Code 等）自动调用 gxx-abap CLI 操作 SAP ABAP 开发系统。Skill 目录包含两个文件：</p>
+        <p>gxx-abap 项目内置了 Agent Skill，供 AI Agent 自动调用 gxx-abap CLI 操作 SAP ABAP 开发系统。</p>
 
         <h2>文件结构</h2>
         <div class="code-block">
           <div class="code-block-header"><span>text</span></div>
           <pre>skills/gxx-abap/
-├── SKILL.md                  # Agent 操作指南（何时使用、核心规则、标准工作流）
+├── SKILL.md                  # Agent 操作指南
 └── references/
-    └── commands.md           # 17 条命令完整参考（参数、示例、JSON 返回结构）</pre>
+    └── commands.md           # 17 条命令完整参考</pre>
         </div>
 
         <h2>SKILL.md</h2>
-        <p>Skill 主文件，定义 Agent 何时使用本 skill、必须遵守的核心规则、禁忌清单和标准工作流。</p>
         <div class="code-block">
           <div class="code-block-header"><span>markdown</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
-          <pre><span class="tk-cmt">---</span>
-<span class="tk-key">name:</span> <span class="tk-str">gxx-abap</span>
-<span class="tk-key">description:</span> <span class="tk-str">This skill should be used when the user needs to operate a SAP ABAP development system from the terminal via the ABAP Development Tools (ADT) CLI — the `gxx-abap` command. It covers listing/searching objects, reading or writing source code, activating, syntax-checking, managing transports, inspecting table/structure metadata, where-used references, short dumps, message classes, and text elements. Trigger on requests to create, edit, activate, check, or inspect ABAP objects (programs, classes, interfaces, function modules, tables, CDS views) or to query ABAP system/transport/dump information.</span>
-<span class="tk-key">category:</span> <span class="tk-str">software-development</span>
-<span class="tk-key">agent_created:</span> <span class="tk-num">true</span>
-<span class="tk-cmt">---</span>
+          <pre><code>---
+name: gxx-abap
+description: This skill should be used when the user needs to operate a SAP ABAP development system from the terminal via the ABAP Development Tools (ADT) CLI — the `gxx-abap` command. It covers listing/searching objects, reading or writing source code, activating, syntax-checking, managing transports, inspecting table/structure metadata, where-used references, short dumps, message classes, and text elements. Trigger on requests to create, edit, activate, check, or inspect ABAP objects (programs, classes, interfaces, function modules, tables, CDS views) or to query ABAP system/transport/dump information.
+category: software-development
+agent_created: true
+---
 
-<span class="tk-cmt"># gxx-abap — Agent 操作指南</span>
+# gxx-abap — Agent 操作指南
 
-通过 <span class="tk-str">`gxx-abap`</span> 命令行工具从终端操作 SAP ABAP 开发系统。所有命令均支持 <span class="tk-str">`--json`</span> 输出，Agent 使用时应<span class="tk-key">**始终加 `--json`**</span>，解析输出做决策，再将关键信息格式化呈现给用户。
+通过 `gxx-abap` 命令行工具（SAP ABAP Development Tools CLI）从终端操作 SAP ABAP 开发系统。所有命令均支持 `--json` 输出，Agent 使用时应**始终加 `--json`**，解析输出做决策，再将关键信息格式化呈现给用户。
 
-<span class="tk-cmt">## 何时使用本 skill</span>
+## 何时使用本 skill
 
 - 用户要求创建 / 修改 / 激活 / 检查 / 查看 ABAP 对象（程序、类、接口、函数组与函数模块、表、CDS 视图）
-- 用户要求搜索对象（<span class="tk-str">`ls`</span>）、查看源码（<span class="tk-str">`cat`</span>）、查表字段与结构（<span class="tk-str">`meta`</span>）、Where-Used 引用（<span class="tk-str">`refs`</span>）、短转储（<span class="tk-str">`dump`</span>）、消息类（<span class="tk-str">`message`</span>）、文本元素（<span class="tk-str">`texts`</span>）
-- 用户要求管理传输请求（<span class="tk-str">`transport`</span>）、查看系统信息（<span class="tk-str">`system`</span>）、排查程序 DUMP
+- 用户要求搜索对象（`ls`）、查看源码（`cat`）、查表字段与结构（`meta`）、Where-Used 引用（`refs`）、短转储（`dump`）、消息类（`message`）、文本元素（`texts`）
+- 用户要求管理传输请求（`transport`）、查看系统信息（`system`）、排查程序 DUMP
 
-<span class="tk-cmt">## 核心规则（必须遵守）</span>
+## 核心规则（必须遵守）
 
-1. <span class="tk-key">**始终用 `--json`**</span> — 所有命令都加 <span class="tk-str">`--json`</span>，解析输出做决策，不要把原始 JSON 直接展示给用户。
-2. <span class="tk-key">**创建对象先搜索**</span> — 用 <span class="tk-str">`ls`</span> 确认对象不存在再 <span class="tk-str">`create`</span>，不要用 <span class="tk-str">`create`</span> 创建已存在的对象。
-3. <span class="tk-key">**写入源码标准流程**</span> — <span class="tk-str">`ls`</span> 检查 → <span class="tk-str">`create`</span> → 写本地文件 → <span class="tk-str">`put`</span> 写入 SAP → <span class="tk-str">`activate`</span> 激活 → <span class="tk-str">`check`</span> 验证 → 看错误修正后重试。
-4. <span class="tk-key">**修改已有对象流程**</span> — <span class="tk-str">`cat`</span> 读源码 → 修改 → <span class="tk-str">`put`</span> 写入 → <span class="tk-str">`activate`</span> 激活。
-5. <span class="tk-key">**排查故障用 `dump`**</span> — 程序 DUMP 后用 <span class="tk-str">`gxx-abap dump`</span> 查详情，从 <span class="tk-str">`termination.line`</span> 定位出错行。
-6. <span class="tk-key">**文本元素格式**</span> — <span class="tk-str">`KEY  =VALUE`</span>，KEY 与 <span class="tk-str">`=`</span> 间至少一个空格。
-7. <span class="tk-key">**传输号是任务号不是请求号**</span> — <span class="tk-str">`transport list`</span> 返回值是请求号；<span class="tk-str">`create --transport`</span> 需要的是其下的<span class="tk-key">**任务号**</span>。
-8. <span class="tk-key">**查看表字段用 `meta` 不用 `cat`**</span> — <span class="tk-str">`meta`</span> 直接返回结构化字段列表。
-9. <span class="tk-key">**`put` 自动解锁**</span> — 写入后在 finally 块自动调用解锁接口。
-10. <span class="tk-key">**涉及修改写入的命令必须向用户确认**</span> — 特别是 <span class="tk-str">`create`</span>、<span class="tk-str">`put`</span>、<span class="tk-str">`texts --set`</span>、<span class="tk-str">`activate`</span>。
+1. **始终用 `--json`** — 所有命令都加 `--json`，解析输出做决策，不要把原始 JSON 直接展示给用户。
+2. **创建对象先搜索** — 用 `ls` 确认对象不存在再 `create`，不要用 `create` 创建已存在的对象。
+3. **写入源码标准流程** — `ls` 检查 → `create` → 写本地文件 → `put` 写入 SAP → `activate` 激活 → 看错误修正后重试。
+4. **修改已有对象流程** — `cat` 读源码 → 修改 → `put` 写入 → `activate` 激活。
+5. **排查故障用 `dump`** — 程序 DUMP 后用 `gxx-abap dump` 查详情，从 `termination.line` 定位出错行。
+6. **文本元素格式** — 首行 `@MaxLength:N`（最大文本字节数），后续行 `KEY=VALUE`（单等号）。selections/headings 无 MaxLength 头。symbols 只支持更新已存在条目，不能新建（DS 512）。
+7. **传输号是任务号不是请求号** — `transport list` 返回值是请求号；`create --transport` 需要的是其下的**任务号**（在 SE10 展开节点确认）。
+8. **查看表字段用 `meta` 不用 `cat`** — `meta` 直接返回结构化字段列表；`cat -t table` 只返回表头定义源码，不直接。
+9. **`put` 自动解锁** — 写入后在 finally 块自动调用解锁接口，不用手动调解锁；残留锁可用 `--force-unlock`。
+10. **涉及修改写入的命令必须向用户确认** — 特别是 `create`、`put`、`texts --set`、`activate`，执行前展示变更概要并获得明确许可。
 
-<span class="tk-cmt">## 禁忌清单</span>
+## 禁忌清单
 
-- ❌ 不要用 <span class="tk-str">`create`</span> 创建已存在的对象 —— 先 <span class="tk-str">`ls`</span> 检查。
-- ❌ 不要在未获用户确认时执行 <span class="tk-str">`put`</span>。
-- ❌ 不要把请求号当任务号用。
-- ❌ 不要把 <span class="tk-str">`--json`</span> 原始输出直接展示给用户。
-- ❌ 不要对 <span class="tk-str">`$TMP`</span> 包中的对象分配正式传输号。
-- ❌ 查看表字段不要用 <span class="tk-str">`cat -t table`</span> —— 用 <span class="tk-str">`meta`</span>。
+- ❌ 不要用 `create` 创建已存在的对象 —— 先 `ls` 检查。
+- ❌ 不要在未获用户确认时执行 `put` —— 向用户展示变更概要并等待确认。
+- ❌ 不要把请求号当任务号用 —— `transport list` 返回值是请求号，`create --transport` 需要的是其下的任务号。
+- ❌ 不要把 `--json` 原始输出直接展示给用户 —— 提取关键信息后格式化呈现。
+- ❌ 不要对 `$TMP` 包中的对象分配正式传输号 —— `$TMP` 对象不需要也不会被传输。
+- ❌ 不要在一条命令里混用 `--json` 和交互式参数 —— 需要密码时建议用预先配置好的连接。
+- ❌ 查看表字段不要用 `cat -t table` —— 用 `meta` 直接获取结构化字段列表。
 
-<span class="tk-cmt">## 标准工作流</span>
+## 标准工作流
 
-<span class="tk-cmt">### 新建对象</span>
-<span class="tk-key">```</span>
-ls &lt;pattern&gt; --json          <span class="tk-cmt"># 确认不存在</span>
+### 新建对象
+```
+ls &lt;pattern&gt; --json          # 确认不存在
 create &lt;name&gt; -t &lt;type&gt; --description &lt;desc&gt; --package &lt;pkg&gt; --transport &lt;task&gt; --json
-<span class="tk-cmt"># 写本地源码文件</span>
+# 写本地源码文件
 put &lt;name&gt; &lt;file&gt; -t &lt;type&gt; --json
 activate &lt;name&gt; -t &lt;type&gt; --json
-check &lt;name&gt; -t &lt;type&gt; --json   <span class="tk-cmt"># 若有错误，修正后重试</span>
-<span class="tk-key">```</span>
+check &lt;name&gt; -t &lt;type&gt; --json   # 若有错误，修正后重试
+```
 
-<span class="tk-cmt">### 修改已有对象</span>
-<span class="tk-key">```</span>
-cat &lt;name&gt; -t &lt;type&gt; --json   <span class="tk-cmt"># 读取源码</span>
-<span class="tk-cmt"># 修改本地副本</span>
+### 修改已有对象
+```
+cat &lt;name&gt; -t &lt;type&gt; --json   # 读取源码
+# 修改本地副本
 put &lt;name&gt; &lt;file&gt; -t &lt;type&gt; --json
 activate &lt;name&gt; -t &lt;type&gt; --json
-<span class="tk-key">```</span>
+```
 
-<span class="tk-cmt">### 故障排查（程序 DUMP）</span>
-<span class="tk-key">```</span>
-dump --json                       <span class="tk-cmt"># 列表，定位目标 dump</span>
-dump &lt;14位时间戳ID&gt; --json        <span class="tk-cmt"># 详情，看 termination.line</span>
-<span class="tk-key">```</span>
+### 故障排查（程序 DUMP）
+```
+dump --json                       # 列表，定位目标 dump
+dump &lt;14位时间戳ID&gt; --json        # 详情，看 termination.line
+```
 
-<span class="tk-cmt">## 确认要求</span>
+## 确认要求
 
-涉及修改写入的命令执行前，必须向用户展示变更概要（对象名、类型、包、传输任务号、改动点），并获得明确许可后再执行。
+涉及修改写入的命令（`create`、`put`、`texts --set`、`activate`）执行前，必须向用户展示变更概要（对象名、类型、包、传输任务号、改动点），并获得明确许可后再执行。对外操作同样遵循此原则。
 
-<span class="tk-cmt">## 命令参考</span>
+## 命令参考
 
-完整的 17 条命令清单、参数说明与 JSON 输出结构见 <span class="tk-str">`references/commands.md`</span>。
+完整的 17 条命令清单、参数说明与 JSON 输出结构见 `references/commands.md`。需要具体命令的详细参数、示例或返回字段时，读取该文件。
 
-<span class="tk-cmt">## 环境信息</span>
+环境信息：
 
-- CLI 工具：<span class="tk-str">`gxx-abap`</span>（全局安装）
-- 类型映射：<span class="tk-str">`PROG/P`</span>=程序，<span class="tk-str">`CLAS/OC`</span>=类，<span class="tk-str">`INTF/OI`</span>=接口，<span class="tk-str">`FUGR/F`</span>=函数组，<span class="tk-str">`FUGR/FF`</span>=函数模块，<span class="tk-str">`TABL/DT`</span>=表，<span class="tk-str">`DDLS/DF`</span>=CDS 视图
-- 自动识别规则：<span class="tk-str">`CL_*`</span>/<span class="tk-str">`ZCL_*`</span>→class，<span class="tk-str">`IF_*`</span>/<span class="tk-str">`ZIF_*`</span>→interface，<span class="tk-str">`SAPL*`</span>/短名→function，其他→program</pre>
+- CLI 工具：`gxx-abap`（全局安装）
+- 类型映射：`PROG/P`=程序，`CLAS/OC`=类，`INTF/OI`=接口，`FUGR/F`=函数组（注意 `ls` 搜不到），`FUGR/FF`=函数模块，`TABL/DT`=表，`DDLS/DF`=CDS 视图
+- 自动识别规则：`CL_*`/`ZCL_*`→class，`IF_*`/`ZIF_*`→interface，`SAPL*`/短名→function，其他→program
+- **函数模块 (fm)**：用 `-t fm`，函数组名自动搜索发现（也可手动 `--group`）。创建只能通过 SE37，CLI 仅支持读写源码与激活。接口签名（`*"` 注释块）不能 PUT 写入
+</code></pre>
         </div>
 
-        <h2>references/commands.md</h2>
-        <p>完整的 17 条命令参考文档，按类别分组，包含每条命令的参数表、示例代码和 JSON 返回结构。</p>
+        <h2>commands.md</h2>
         <div class="code-block">
           <div class="code-block-header"><span>markdown</span><span class="copy-code" onclick="copyCode(this)">复制</span></div>
-          <pre><span class="tk-cmt"># gxx-abap 命令完整参考</span>
+          <pre><code># gxx-abap 命令完整参考
 
-<span class="tk-str">`gxx-abap`</span> 是 SAP ABAP Development Tools（ADT）CLI，从终端操作 ABAP 开发系统。所有命令均支持 <span class="tk-str">`--json`</span>。
+`gxx-abap` 是 SAP ABAP Development Tools（ADT）CLI，从终端操作 ABAP 开发系统。所有命令均支持 `--json`。下文按类别列出全部命令的参数、示例与返回结构。
 
-<span class="tk-cmt">## 连接管理</span>
+## 连接管理
 
-<span class="tk-cmt">### ping — 测试连接</span>
-<span class="tk-key">```bash</span>
+### ping — 测试连接
+```bash
 gxx-abap ping --json
-<span class="tk-cmt"># 返回: { status, sid, basisVersion, host, port, user }</span>
-<span class="tk-key">```</span>
+# 返回: { status, sid, basisVersion, host, port, user }
+```
 
-<span class="tk-cmt">### status — 连接状态</span>
-<span class="tk-key">```bash</span>
+### status — 连接状态
+```bash
 gxx-abap status --json
-<span class="tk-key">```</span>
+```
 
-<span class="tk-cmt">## 对象操作</span>
+---
 
-<span class="tk-cmt">### ls — 搜索 ABAP 对象</span>
-<span class="tk-key">```bash</span>
+## 对象操作
+
+### ls — 搜索 ABAP 对象
+```bash
 gxx-abap ls &lt;pattern&gt; --json
 gxx-abap ls "Z*" --json
-<span class="tk-cmt"># 返回: { search, count, objects: [{ name, type }] }</span>
-<span class="tk-key">```</span>
-类型映射：<span class="tk-str">`PROG/P`</span>=程序，<span class="tk-str">`CLAS/OC`</span>=类，<span class="tk-str">`INTF/OI`</span>=接口，<span class="tk-str">`FUGR/F`</span>=函数组，<span class="tk-str">`TABL/DT`</span>=表，<span class="tk-str">`DDLS/DF`</span>=CDS 视图。
+gxx-abap ls "ZPPR090" --json
+# 返回: { search, count, objects: [{ name, type }] }
+```
+`*` 通配符。类型映射：`PROG/P`=程序，`CLAS/OC`=类，`INTF/OI`=接口，`FUGR/FF`=函数模块，`TABL/DT`=表，`DDLS/DF`=CDS 视图。（注：`ls` 搜不到 FUGR/F 函数组）
 
-<span class="tk-cmt">### cat — 查看对象源码</span>
-<span class="tk-key">```bash</span>
+### cat — 查看对象源码
+```bash
 gxx-abap cat &lt;对象名&gt; --json
 gxx-abap cat zcl_hello -t class --json
-<span class="tk-cmt"># 返回: { path, type, source }</span>
-<span class="tk-key">```</span>
+# 返回: { path, type, source }
+```
 | 参数 | 说明 |
-| <span class="tk-str">`-t, --type`</span> | <span class="tk-str">`class`</span> <span class="tk-str">`program`</span> <span class="tk-str">`interface`</span> <span class="tk-str">`table`</span> <span class="tk-str">`function`</span> |
+|------|------|
+| `&lt;path&gt;` | 对象名 |
+| `-t, --type &lt;type&gt;` | `class` `program` `interface` `table` `function` |
 
-自动识别：<span class="tk-str">`CL_*`</span>/<span class="tk-str">`ZCL_*`</span>→class，<span class="tk-str">`IF_*`</span>/<span class="tk-str">`ZIF_*`</span>→interface，<span class="tk-str">`SAPL*`</span>/短名→function，其他→program。
+**自动识别规则**：`CL_*`/`ZCL_*`→class，`IF_*`/`ZIF_*`→interface，`SAPL*`/短名→function，其他→program。
 
-<span class="tk-cmt">### create — 创建 ABAP 对象</span>
-<span class="tk-key">```bash</span>
+### create — 创建 ABAP 对象
+```bash
 gxx-abap create &lt;name&gt; -t &lt;type&gt; --description &lt;desc&gt; --json
 gxx-abap create ZCL_TEST -t class --description "测试类" --package ZAI --transport DS4K939701 --json
-<span class="tk-key">```</span>
+```
 | 参数 | 说明 |
-| <span class="tk-str">`-t, --type`</span> | <span class="tk-key">**必填**</span>：<span class="tk-str">`class`</span> <span class="tk-str">`program`</span> <span class="tk-str">`interface`</span> <span class="tk-str">`function`</span> |
-| <span class="tk-str">`--description`</span> | 描述 |
-| <span class="tk-str">`--package`</span> | 包名，默认 <span class="tk-str">`$TMP`</span> |
-| <span class="tk-str">`--transport`</span> | 传输<span class="tk-key">**任务号**</span>（非请求号） |
+|------|------|
+| `&lt;name&gt;` | 对象名，自动转大写 |
+| `-t, --type &lt;type&gt;` | **必填**：`class` `program` `interface` `function` |
+| `--description` | 描述 |
+| `--package` | 包名，默认 `$TMP` |
+| `--transport` | 传输**任务号**（非请求号） |
 
-<span class="tk-cmt">### put — 写入源码（锁定→写入→解锁）</span>
-<span class="tk-key">```bash</span>
+### put — 写入源码（锁定→写入→解锁）
+```bash
 gxx-abap put &lt;对象名&gt; &lt;文件路径&gt; -t &lt;type&gt; --json
 cat code.abap | gxx-abap put ztest -t program --json
-gxx-abap put ztest -t program --force-unlock --json
-<span class="tk-key">```</span>
-写入后在 finally 块自动调用解锁接口。
+# 强制解锁后写入（清除残留锁）
+gxx-abap put ztest -t program --force-unlock
+gxx-abap put ZTEST -t fm -g ZZZ_TEST_API3            # 函数模块 --json
+```
+| 参数 | 说明 |
+|------|------|
+| `&lt;path&gt;` | 对象名 |
+| `[file]` | 源码文件，不传从 stdin 读取 |
+| `-t, --type &lt;type&gt;` | `class` `program` `interface` `fm` |
+| `--force-unlock` | 写入前强制解锁 |
 
-<span class="tk-cmt">### activate — 激活对象（含语法检查）</span>
-<span class="tk-key">```bash</span>
+写入后在 `finally` 块自动调用 `/sap/bc/zsx_intf_serv/zsx_oa?INTFID=AI_PUT_UNLOCK` 解锁。
+
+### unlock — 释放对象锁
+```bash
+gxx-abap unlock &lt;对象名&gt; --json
+gxx-abap unlock ZPPR090 --json
+# 返回: { STATUS, MSGTXT }
+```
+调用 AI_PUT_UNLOCK 接口释放 SE80/SE37 编辑残留锁。
+
+---
+
+### activate### activate — 激活对象（含语法检查）
+```bash
 gxx-abap activate &lt;对象名&gt; -t &lt;type&gt; --json
-<span class="tk-cmt"># 返回: { success, checkExecuted, activationExecuted, errors: [{ type, line, text }] }</span>
-<span class="tk-key">```</span>
+# 返回: { success, checkExecuted, activationExecuted, errors: [{ type, line, text }] }
+```
+`type` 可为 `E`=错误，`W`=警告。激活失败时返回具体行号和消息。
 
-<span class="tk-cmt">## 传输管理</span>
+---
 
-<span class="tk-cmt">### transport — 管理传输请求</span>
-<span class="tk-key">```bash</span>
-gxx-abap transport list --json       <span class="tk-cmt"># 列出当前用户的传输请求</span>
-gxx-abap transport object &lt;对象名&gt; --json  <span class="tk-cmt"># 查看对象关联的传输请求</span>
-<span class="tk-key">```</span>
+## 传输管理
 
-<span class="tk-cmt">## 代码检查</span>
+### transport — 管理传输请求
+```bash
+gxx-abap transport list --json       # 列出当前用户的传输请求
+gxx-abap transport object &lt;对象名&gt; --json  # 查看对象关联的传输请求
+```
 
-<span class="tk-cmt">### check — 语法检查</span>
-<span class="tk-key">```bash</span>
-gxx-abap check &lt;对象名&gt; -t &lt;type&gt; --json
-<span class="tk-cmt"># 返回: { type, path, findings: [{ severity, line, message }], errors, warnings }</span>
-<span class="tk-key">```</span>
+---
 
-<span class="tk-cmt">## 对象查询</span>
+## 代码检查
 
-<span class="tk-cmt">### meta — 查看表结构/结构字段/数据元素</span>
-<span class="tk-key">```bash</span>
+### meta — 查看表结构/结构字段/数据元素
+```bash
 gxx-abap meta &lt;名称&gt; --json
-<span class="tk-cmt"># 表/结构返回: { table, fields: [{ field, dataElement, type, length, decimals, description }] }</span>
-<span class="tk-cmt"># 数据元素返回: { name, description, dataType, typeName, length, shortLabel }</span>
-<span class="tk-key">```</span>
+# 表/结构返回: { table, fields: [{ field, dataElement, type, length, decimals, description }] }
+# 数据元素返回: { name, description, dataType, typeName, length, shortLabel }
+```
 自动判断表、结构还是数据元素。支持 include 展开。
 
-<span class="tk-cmt">### refs — Where-Used 引用查询</span>
-<span class="tk-key">```bash</span>
+### refs — Where-Used 引用查询
+```bash
 gxx-abap refs &lt;对象名&gt; -t &lt;type&gt; --json
-<span class="tk-cmt"># 返回: { object, type, count, references: [{ name, type, description, uri }] }</span>
-<span class="tk-key">```</span>
+# 返回: { object, type, count, references: [{ name, type, description, uri }] }
+```
 
-<span class="tk-cmt">### dump — 短转储查看</span>
-<span class="tk-key">```bash</span>
-gxx-abap dump --json                                <span class="tk-cmt"># 列表</span>
-gxx-abap dump &lt;14位时间戳ID&gt; --json                  <span class="tk-cmt"># 详情</span>
-gxx-abap dump --from 20250701 --json                 <span class="tk-cmt"># 按时间过滤</span>
-<span class="tk-key">```</span>
-详情返回：<span class="tk-str">`{ dumpId, error, exception, program, author, datetime, termination: { uri, line }, ... }`</span>
+### dump — 短转储查看
+```bash
+gxx-abap dump --json                                # 列表
+gxx-abap dump &lt;14位时间戳ID&gt; --json                  # 详情
+gxx-abap dump --from 20250701 --json                 # 按时间过滤
+```
+详情返回：`{ dumpId, error, exception, program, author, datetime, termination: { uri, line }, chapters, chapterList, content, cleanedContent, sections }`。
 
-<span class="tk-cmt">## 开发辅助</span>
+---
 
-<span class="tk-cmt">### message — 查看消息类</span>
-<span class="tk-key">```bash</span>
+## 开发辅助
+
+### message — 查看消息类
+```bash
 gxx-abap message &lt;消息类名&gt; --json
-<span class="tk-cmt"># 返回: { name, count, messages: [{ number, text }] }</span>
-<span class="tk-key">```</span>
+# 返回: { name, count, messages: [{ number, text }] }
+```
 
-<span class="tk-cmt">### texts — 查看/修改文本元素</span>
-<span class="tk-key">```bash</span>
-<span class="tk-cmt"># 查看</span>
+### texts — 查看/修改文本元素
+```bash
+# 查看
 gxx-abap texts &lt;对象名&gt; -t &lt;type&gt; --json
-<span class="tk-cmt"># 返回: { name, type, selections: [{ key, text }], symbols: [...], headings: [...] }</span>
+# 返回: { name, type, selections: [{ key, text }], symbols: [...], headings: [...] }
 
-<span class="tk-cmt"># 写入</span>
+# 写入
 gxx-abap texts &lt;对象名&gt; --set &lt;sub&gt; --file &lt;路径&gt;
 echo "KEY  =VALUE" | gxx-abap texts ZTEST --set selections
-<span class="tk-key">```</span>
+```
 | 参数 | 说明 |
-| <span class="tk-str">`--set &lt;sub&gt;`</span> | 写入子对象：<span class="tk-str">`selections`</span> <span class="tk-str">`symbols`</span> <span class="tk-str">`headings`</span> |
-| <span class="tk-str">`--file`</span> | 文件路径 |
-写入文件格式：<span class="tk-str">`KEY  =VALUE`</span>（等号前空格补齐）。
+|------|------|
+| `-t, --type` | `program` `class` `function` |
+| `--set &lt;sub&gt;` | 写入子对象：`selections` `symbols` `headings` |
+| `--file` | 文件路径 |
+| `--force-unlock` | 写入前强制解锁 |
 
-<span class="tk-cmt">## 系统信息</span>
+写入文件格式：首行 `@MaxLength:N`（N=最大文本字节数），后续行 `KEY=VALUE`。
 
-<span class="tk-cmt">### system — 系统信息</span>
-<span class="tk-key">```bash</span>
-gxx-abap system info --json             <span class="tk-cmt"># { sid, basisVersion, kernel, serverName }</span>
-gxx-abap system components --json       <span class="tk-cmt"># { count, components: [{ id, release, patch, ... }] }</span>
-<span class="tk-key">```</span></pre>
+```
+@MaxLength:12
+001=公司代码
+002=公司名称
+```
+
+&gt; 注意：symbols 只支持**更新**已存在的文本符号，不支持新建。新建需通过 SE80。
+
+---
+
+## 系统信息
+
+### system — 系统信息
+```bash
+gxx-abap system info --json             # { sid, basisVersion, kernel, serverName }
+gxx-abap system components --json       # { count, components: [{ id, release, patch, ... }] }
+```
+</code></pre>
         </div>
       </section>
-
-    </main>
-  </div>
-</div>
 
 <!-- ===== Footer ===== -->
 <footer class="footer">

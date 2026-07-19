@@ -32,7 +32,6 @@ gxx-abap meta ekko
 | 连接 | `config` `ping` `status` `clear` | 配置、测试、查看连接 |
 | 对象 | `ls` `cat` `create` `put` `activate` | 搜索、查看、创建、写入、激活 |
 | 传输 | `transport` | 传输请求管理 |
-| 检查 | `check` | 语法检查 |
 | 查询 | `meta` `refs` `dump` | 表结构、引用查询、DUMP |
 | 辅助 | `message` `texts` | 消息类、文本元素 |
 | 系统 | `system` | 系统信息 |

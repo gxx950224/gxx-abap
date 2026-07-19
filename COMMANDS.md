@@ -99,7 +99,7 @@ gxx-abap ls Z* --json
 
 **JSON 返回**：`{ search, count, objects: [{ name, type }] }`
 
-type 映射：`PROG/P` 程序、`CLAS/OC` 类、`INTF/OI` 接口、`TABL/DT` 表、`FUGR/F` 函数组、`FUGR/FF` 函数模块、`DDLS/DF` CDS 视图 等。
+type 映射：`PROG/P` 程序、`CLAS/OC` 类、`INTF/OI` 接口、`TABL/DT` 表、`FUGR/FF` 函数模块、`DDLS/DF` CDS 视图 等。（注：`ls` 搜不到 FUGR/F 函数组）
 
 ### cat
 
@@ -111,6 +111,7 @@ gxx-abap cat zppr090                          # 自动识别为程序
 gxx-abap cat zcl_hello -t class               # 指定为类
 gxx-abap cat ekko -t table                    # 表（必须手动指定）
 gxx-abap cat zppr090 -t program --json
+gxx-abap cat ZTEST -t fm                        # 函数模块（自动发现函数组）
 ```
 
 | 参数 | 必填 | 说明 |
@@ -118,13 +119,15 @@ gxx-abap cat zppr090 -t program --json
 | `<path>` | 是 | 对象名 |
 | `-t, --type <type>` | 否 | 类型，不传则自动识别 |
 
-**-t 可选值**：`class` `program` `interface` `table` `function`
+**-t 可选值**：`class` `program` `interface` `table` `fm`
 
 **自动识别规则**：
 - `CL_*` / `ZCL_*` → `class`
 - `IF_*` / `ZIF_*` → `interface`
-- `SAPL*` / `Z*` / `Y*`（短名，2-3位）→ `function`
 - 其他 → `program`
+
+
+> **函数模块 (fm)**：创建需通过 SE37 手动完成。`cat`/`put`/`activate`/`refs` 用 `-t fm`（自动发现函数组）。接口签名（`*"` 注释块）不能 PUT 写入，需在 SE37 修改。
 
 ### create
 
@@ -134,13 +137,13 @@ gxx-abap cat zppr090 -t program --json
 gxx-abap create <name> -t <type>
 gxx-abap create YTEST -t program
 gxx-abap create ZCL_HELLO -t class --description "Hello World"
-gxx-abap create ZAI_FUNC -t function --package ZAI --transport DS4K939701
+gxx-abap create ZIF_MY_INTF -t interface --package ZAI
 ```
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `<name>` | 是 | 对象名称（自动转大写） |
-| `-t, --type <type>` | 是 | `class` `program` `interface` `function` |
+| `-t, --type <type>` | 是 | `class` `program` `interface` |
 | `--description <desc>` | 否 | 对象描述 |
 | `--package <pkg>` | 否 | 包名，默认 `$TMP` |
 | `--transport <tr>` | 否 | 传输**任务号**（非请求号，SE10 展开可见） |
@@ -153,16 +156,35 @@ gxx-abap create ZAI_FUNC -t function --package ZAI --transport DS4K939701
 gxx-abap put <对象名> <文件路径> -t <type>
 cat mycode.abap | gxx-abap put ztest -t program    # 管道传入
 gxx-abap put ztest -t program --force-unlock       # 强制解锁后写入
+gxx-abap put ZTEST -t fm                        # 函数模块（自动发现函数组）
 ```
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `<path>` | 是 | 对象名 |
 | `[file]` | 否 | 源码文件路径，不传则从 stdin 读取 |
-| `-t, --type <type>` | 否 | `class` `program` `interface` `function` |
+| `-t, --type <type>` | 否 | `class` `program` `interface` `fm` |
 | `--force-unlock` | 否 | 写入前先强制解除残留锁 |
 
-### activate
+### unlock
+
+调用 AI_PUT_UNLOCK 接口释放对象锁（SE80/SE37 编辑残留锁）。
+
+```bash
+gxx-abap unlock <对象名>
+gxx-abap unlock ZPPR090
+gxx-abap unlock ZZZ_TEST_API3 --json
+```
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `<name>` | 是 | 对象名 |
+
+**JSON 返回**：`{ STATUS, MSGTXT }`
+
+---
+
+### activate### activate
 
 激活对象（含语法检查，激活失败时返回具体错误行号和消息）。
 
@@ -170,12 +192,13 @@ gxx-abap put ztest -t program --force-unlock       # 强制解锁后写入
 gxx-abap activate <对象名>
 gxx-abap activate zcl_hello -t class
 gxx-abap activate zppr090 -t program --json
+gxx-abap activate ZTEST -t fm                   # 函数模块（自动发现函数组）
 ```
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `<path>` | 是 | 对象名 |
-| `-t, --type <type>` | 否 | `class` `program` `interface` `function` |
+| `-t, --type <type>` | 否 | `class` `program` `interface` `fm` |
 
 **JSON 返回**：`{ success, checkExecuted, activationExecuted, errors: [{ type, line, text }] }`
 
@@ -208,27 +231,6 @@ gxx-abap transport list --json
 
 ## 代码检查
 
-### check
-
-语法检查。
-
-```bash
-gxx-abap check <对象名>
-gxx-abap check zppr090 -t program
-gxx-abap check zcl_hello -t class --json
-```
-
-| 参数 | 必填 | 说明 |
-|------|------|------|
-| `<path>` | 是 | 对象名 |
-| `-t, --type <type>` | 否 | `class` `program` `table` `interface` `function` |
-
-**JSON 返回**：`{ type, path, findings: [{ severity, line, message }], errors, warnings }`
-
----
-
-## 对象查询
-
 ### meta
 
 查看表结构、结构字段或数据元素属性。表/结构支持 `include` 自动递归展开。
@@ -257,12 +259,13 @@ Where-Used 引用查询，查找引用了指定对象的所有程序、类、函
 gxx-abap refs <对象名>
 gxx-abap refs ZBCT_INTF_MCP -t table
 gxx-abap refs ZDOWNLOAD_ABAP --json
+gxx-abap refs ZTEST -t fm                       # 函数模块（自动发现函数组）
 ```
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `<name>` | 是 | 对象名 |
-| `-t, --type <type>` | 否 | `program` `class` `table` `interface` `function` |
+| `-t, --type <type>` | 否 | `program` `class` `table` `interface` `function` `fm` |
 
 **JSON 返回**：`{ object, type, count, references: [{ name, type, description, uri }] }`
 
