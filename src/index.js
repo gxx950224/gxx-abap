@@ -133,15 +133,17 @@ function run() {
         );
 
         // 解析 XML
-        const objRegex = /<adtcore:objectReference[^>]*adtcore:type="([^"]+)"[^>]*adtcore:name="([^"]+)"[^>]*\/>/g;
-        const objRegex2 = /<adtcore:objectReference[^>]*adtcore:name="([^"]+)"[^>]*adtcore:type="([^"]+)"[^>]*\/>/g;
+        const objRegex = /<adtcore:objectReference[^>]*adtcore:uri="([^"]*)"[^>]*adtcore:type="([^"]+)"[^>]*adtcore:name="([^"]+)"[^>]*\/>/g;
+        const objRegex2 = /<adtcore:objectReference[^>]*adtcore:uri="([^"]*)"[^>]*adtcore:name="([^"]+)"[^>]*adtcore:type="([^"]+)"[^>]*\/>/g;
         const items = [];
         let m;
         while ((m = objRegex.exec(res.body)) !== null) {
-          items.push({ name: m[2], type: m[1] });
+          items.push({ name: m[3], type: m[2], uri: m[1] || '' });
         }
         while ((m = objRegex2.exec(res.body)) !== null) {
-          if (!items.find(i => i.name === m[1])) items.push({ name: m[1], type: m[2] });
+          if (!items.find(i => i.name === m[1])) {
+            items.push({ name: m[2], type: m[3], uri: m[1] || '' });
+          }
         }
 
         if (opts.json) {
@@ -315,6 +317,7 @@ function run() {
     .argument('[file]', '源码文件路径（不传则从stdin读取）')
     .option('-t, --type <type>', '对象类型: class, program, interface, fm')
     
+    .option('--transport <tr>', '传输请求号（写入时关联此传输）')
     .option('--force-unlock', '写入前先强制解锁（用于解除残留锁）')
     .option('--json', 'JSON格式输出')
     .action(async (objPath, file, opts) => {
@@ -372,7 +375,17 @@ function run() {
         }
 
 {
-          let r = await client.rawRequest('POST', `${objBase}?_action=LOCK&accessMode=MODIFY`, {
+          // 自动获取对象已有的传输号（用户未指定 --transport 时）
+        let transportNr = opts.transport || '';
+        if (!transportNr) {
+          try {
+            const trRes = await client.request('GET', `/sap/bc/adt/repository/informationsystem/objectproperties/transports?uri=${encodeURIComponent('/sap/bc/adt/' + objBase.split('/sap/bc/adt/')[1])}`);
+            transportNr = trRes.body.match(/tpr:transport\s+number="([^"]+)"/)?.[1] || '';
+          } catch {}
+        }
+
+        const lockUrl = `${objBase}?_action=LOCK&accessMode=MODIFY` + (transportNr ? `&corrNr=${transportNr.toUpperCase()}` : '');
+          let r = await client.rawRequest('POST', lockUrl, {
             body: '',
             headers: { 'Content-Type': 'application/atom+xml; type=entry', ...sessHeaders },
           });
@@ -380,7 +393,7 @@ function run() {
           lockHandle = r.body.match(/<LOCK_HANDLE>([^<]+)<\/LOCK_HANDLE>/i)?.[1];
           if (!lockHandle) throw new Error('获取 lockHandle 失败');
         }
-        const corrNr = '';
+        const corrNr = transportNr;
 
         try {
           const putParams = `lockHandle=${encodeURIComponent(lockHandle)}` + (corrNr ? `&corrNr=${encodeURIComponent(corrNr)}` : '');
@@ -1084,7 +1097,8 @@ function run() {
           if (!lockHandle) throw new Error('获取 lockHandle 失败');
 
           try {
-            const putRes = await client.rawRequest('PUT', `${subPath}?lockHandle=${encodeURIComponent(lockHandle)}&corrNr=${corrNr || ''}`, {
+            const corrNrParam = corrNr ? `&corrNr=${encodeURIComponent(corrNr)}` : '';
+            const putRes = await client.rawRequest('PUT', `${subPath}?lockHandle=${encodeURIComponent(lockHandle)}${corrNrParam}`, {
               body: source,
               headers: { 'Content-Type': ct, ...sessHeaders }
             });
