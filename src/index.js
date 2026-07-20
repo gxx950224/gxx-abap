@@ -212,6 +212,7 @@ function run() {
     .option('--package <pkg>', '开发类/包名（默认 $TMP）')
     .option('--transport <tr>', '传输请求号（不指定则 SAP 自动创建）')
     .option('--json', 'JSON格式输出')
+    .option('--field <name>', '按字段名过滤（不区分大小写）')
     .action(async (name, opts) => {
       try {
         await client.autoConnect();
@@ -634,9 +635,17 @@ function run() {
     .description('查看表/结构/数据元素')
     .argument('<name>', '表名/结构名/数据元素名')
     .option('--json', 'JSON格式输出')
+    .option('--field <name>', '按字段名过滤（不区分大小写）')
     .action(async (name, opts) => {
 
       // 从 DDL 源码中提取字段名和数据元素
+      // --field 过滤
+      function filterFields(fields) {
+        if (!opts.field) return fields;
+        const q = opts.field.toUpperCase();
+        return fields.filter(f => f.field.toUpperCase().includes(q));
+      }
+
       function extractFields(ddlSource) {
         const fields = [];
         const lines = ddlSource.split('\n');
@@ -819,13 +828,18 @@ function run() {
           };
         });
 
+        // --field 过滤
+        const showFields = opts.field
+          ? fullFields.filter(f => f.field.includes(opts.field.toUpperCase()))
+          : fullFields;
+
         if (opts.json) {
-          console.log(JSON.stringify({ table: name.toUpperCase(), fields: fullFields }, null, 2));
+          console.log(JSON.stringify({ table: name.toUpperCase(), fields: showFields }, null, 2));
         } else {
-          console.log(`\n表: ${name.toUpperCase()} (${fullFields.length} 字段)\n`);
+          console.log(`\n表: ${name.toUpperCase()} (${showFields.length}/${fullFields.length} 字段)\n`);
           console.log('字段名'.padEnd(18), '数据元素'.padEnd(18), '类型'.padEnd(8), '长度'.padEnd(6), '小数'.padEnd(4), '描述');
           console.log('-'.repeat(80));
-          for (const f of fullFields) {
+          for (const f of showFields) {
             console.log(f.field.padEnd(18), f.dataElement.padEnd(18), f.type.padEnd(8), (f.length || '').toString().padEnd(6), (f.decimals || '').toString().padEnd(4), f.description);
           }
         }
