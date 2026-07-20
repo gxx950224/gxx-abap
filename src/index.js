@@ -374,8 +374,7 @@ function run() {
           }
         }
 
-{
-          // 自动获取对象已有的传输号（用户未指定 --transport 时）
+        // 自动获取对象已有的传输号（用户未指定 --transport 时）
         let transportNr = opts.transport || '';
         if (!transportNr) {
           try {
@@ -385,14 +384,14 @@ function run() {
         }
 
         const lockUrl = `${objBase}?_action=LOCK&accessMode=MODIFY` + (transportNr ? `&corrNr=${transportNr.toUpperCase()}` : '');
-          let r = await client.rawRequest('POST', lockUrl, {
-            body: '',
-            headers: { 'Content-Type': 'application/atom+xml; type=entry', ...sessHeaders },
-          });
-          if (r.status !== 200) throw new Error(`锁定失败: ${extractErrMsg(r.body)}`);
-          lockHandle = r.body.match(/<LOCK_HANDLE>([^<]+)<\/LOCK_HANDLE>/i)?.[1];
-          if (!lockHandle) throw new Error('获取 lockHandle 失败');
-        }
+        let r = await client.rawRequest('POST', lockUrl, {
+          body: '',
+          headers: { 'Content-Type': 'application/atom+xml; type=entry', ...sessHeaders },
+        });
+        if (r.status !== 200) throw new Error(`锁定失败: ${extractErrMsg(r.body)}`);
+        lockHandle = r.body.match(/<LOCK_HANDLE>([^<]+)<\/LOCK_HANDLE>/i)?.[1];
+        if (!lockHandle) throw new Error('获取 lockHandle 失败');
+
         const corrNr = transportNr;
 
         try {
